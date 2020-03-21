@@ -39,8 +39,30 @@ from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 labelencoder = LabelEncoder()
 X[:, 1] = labelencoder.fit_transform(X[:, 1])
 X[:, 4] = labelencoder.fit_transform(X[:, 4])
-
+X[:, 5] = labelencoder.fit_transform(X[:, 5])
 onehotencoder = OneHotEncoder(categorical_features = [5])
-X = onehotencoder.fit_transform(X)
+X = onehotencoder.fit_transform(X).toarray()
 
-pd.get_dummies(X,drop_first = True)
+# Avoiding the Dummy Variable Trap
+X = X[:, 1:]
+
+# Splitting the dataset into the Training set and Test set
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
+
+'''#Feature scaling
+from sklearn.preprocessing import StandardScaler
+sc_X = StandardScaler()
+X_train = sc_X.fit_transform(X_train)
+sc_Y = StandardScaler()
+y_train = sc_Y.fit_transform(y_train.reshape(-1,1))'''
+
+# Fitting Multiple Linear Regression to the Training set
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(X_train, y_train)
+
+# Predicting the Test set results
+y_pred = regressor.predict(X_test)
+#y_pred = sc_Y.inverse_transform(y_pred)
+
