@@ -46,6 +46,13 @@ X = onehotencoder.fit_transform(X).toarray()
 # Avoiding the Dummy Variable Trap
 X = X[:, 1:]
 
+#building an optional model using backward elimination-P-value and adj-RSquared
+import statsmodels.api as sm
+X = sm.add_constant(X)
+X_opt = X[:, [0,4,6,7,8]]
+regressor_OLS = sm.OLS(endog = y, exog = X_opt).fit()
+regressor_OLS.summary()
+
 # Splitting the dataset into the Training set and Test set
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.2, random_state = 0)
@@ -63,6 +70,27 @@ regressor = LinearRegression()
 regressor.fit(X_train, y_train)
 
 # Predicting the Test set results
+y_train_pred = regressor.predict(X_train)
 y_pred = regressor.predict(X_test)
 #y_pred = sc_Y.inverse_transform(y_pred)
 
+#accuracy measurement
+'''by using variance score function-If variance score is near about the 1 is perfect prediction'''
+print("Variance score for training samples- ",regressor.score(X_train,y_train))
+print("Variance score- ",regressor.score(X_test,y_test))
+
+'''by calculaing mean square error'''
+print("mean Square error for training samples-",np.mean((y_train_pred-y_train)**2))
+print("mean Square error-",np.mean((y_pred-y_test)**2))
+
+'''by calculaing root mean square error'''
+print("Root mean Square error for training samples-",np.sqrt(np.mean((y_train_pred-y_train)**2)))
+print("Root mean Square error-",np.sqrt(np.mean((y_pred-y_test)**2)))
+
+#outputs
+'''Variance score for training samples-  0.7370262574551634
+Variance score-  0.7999876970680435
+mean Square error for training samples- 37701533.128629126
+mean Square error- 31827950.229523815
+Root mean Square error for training samples- 6140.157418880165
+Root mean Square error- 5641.626558850188'''
