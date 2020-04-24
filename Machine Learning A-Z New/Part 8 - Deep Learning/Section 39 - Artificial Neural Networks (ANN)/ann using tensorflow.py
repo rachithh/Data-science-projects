@@ -40,10 +40,10 @@ unscaled_inputs_all.iloc[:, 1] = labelencoder_X_1.fit_transform(unscaled_inputs_
 labelencoder_X_2 = LabelEncoder()
 unscaled_inputs_all.iloc[:, 2] = labelencoder_X_2.fit_transform(unscaled_inputs_all.iloc[:, 2])
 onehotencoder = OneHotEncoder(categorical_features = [1])
-unscaled_inputs_all = onehotencoder.fit_transform(unscaled_inputs_all).toarray()
-unscaled_inputs_all = unscaled_inputs_all[:, 1:]
+'''unscaled_inputs_all = onehotencoder.fit_transform(unscaled_inputs_all).toarray()
+unscaled_inputs_all = unscaled_inputs_all[:, 1:]'''
 
-#scaled_inputs = preprocessing.scale(unscaled_inputs_all)
+unscaled_inputs_all = preprocessing.scale(unscaled_inputs_all)
 
 # Count the total number of samples
 samples_count = unscaled_inputs_all.shape[0]
@@ -110,7 +110,7 @@ test_inputs, test_targets = npz['inputs'].astype(np.float), npz['targets'].astyp
 input_size = 13
 output_size = 1
 # Use same hidden layer size for both hidden layers. Not a necessity.
-hidden_layer_size = 10
+hidden_layer_size = 6
 
 #define how the model will look like
 model = tf.keras.Sequential([
@@ -118,9 +118,8 @@ model = tf.keras.Sequential([
     # it takes several arguments, but the most important ones for us are the hidden_layer_size and the activation function
     tf.keras.layers.Dense(hidden_layer_size,activation='relu'), #adding first hidden layer
     tf.keras.layers.Dense(hidden_layer_size,activation='relu'), #adding second hidden layer
-    tf.keras.layers.Dense(hidden_layer_size,activation='relu'), #adding third hidden layer
     # the final layer is no different, we just make sure to activate it with sigmoid
-    tf.keras.layers.Dense(output_size,activation='softmax') #output layer
+    tf.keras.layers.Dense(output_size,activation='sigmoid') #output layer
     ])
 
 ### Choose the optimizer and the loss function
@@ -158,4 +157,10 @@ test_loss, test_accuracy = model.evaluate(test_inputs, test_targets)
 
 print('\nTest loss: {0:.2f}. Test accuracy: {1:.2f}%'.format(test_loss, test_accuracy*100.))
 
+# Predicting the Test set results
+test_pred = model.predict(test_inputs)
+test_pred = (test_pred > 0.5)
 
+# Making the Confusion Matrix
+from sklearn.metrics import confusion_matrix
+cm = confusion_matrix(test_targets, test_pred)
